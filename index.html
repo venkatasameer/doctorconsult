@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Consultation App</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #e0f7e9; padding: 20px; text-align: center; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px gray; }
+        input, button { width: 100%; margin: 10px 0; padding: 5px; font-size: 14px; border-radius: 5px; border: 1px solid #ccc; }
+        button { background-color: #4CAF50; color: white; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        .section { padding: 15px; border-radius: 8px; background-color: #f9f9f9; }
+        .prescription-view img { max-width: 100%; height: auto; margin-top: 10px; }
+        h2, h3 { color: #2e7d32; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Doctor Consultation App</h2>
+
+        <div class="section">
+            <input type="text" id="symptoms" placeholder="Enter symptoms">
+            <button onclick="findDoctor()">Consult Doctor</button>
+        </div>
+
+        <div id="doctor-info" class="section"></div>
+
+        <div id="medicine-section" class="section" style="display:none;">
+            <h3>Need Medicines</h3>
+            <input type="text" id="userName" placeholder="Your Name">
+            <input type="text" id="medicineName" placeholder="Medicine Name">
+            <input type="text" id="userPhone" placeholder="Phone Number">
+            <input type="text" id="userAddress" placeholder="Address">
+            <input type="file" id="prescription" accept="image/*" onchange="viewPrescription()">
+            <div id="prescription-view" class="prescription-view">Prescription Preview: None</div>
+            <button onclick="sendEmail()">Send to Email</button>
+        </div>
+    </div>
+
+    <script>
+        const symptomToSpecialization = {
+            'chest pain': 'cardiologist',
+            'hearing loss': 'audiologist',
+            'toothache': 'dentist',
+            'ear infection': 'ENT specialist',
+            'irregular periods': 'gynecologist',
+            'joint pain': 'orthopedic surgeon',
+            'fever in child': 'paediatrician',
+            'depression': 'psychiatrist',
+            'pet illness': 'veterinarian',
+            'fractures': 'radiologist',
+            'shortness of breath': 'pulmonologist',
+            'thyroid issues': 'endocrinologist',
+            'lump detection': 'oncologist',
+            'memory loss': 'neurologist',
+            'heart surgery': 'cardiothoracic surgeon',
+            'skin conditions (acne, eczema, psoriasis, rashes)': 'dermatologist',
+            'vision problems, cataracts, glaucoma': 'ophthalmologist',
+            'kidney-related issues, blood in urine, chronic kidney disease': 'nephrologist',
+            'urinary tract infections (UTIs), kidney stones, male reproductive issues': 'urologist',
+            'digestive problems, acid reflux, irritable bowel syndrome (IBS)': 'gastroenterologist',
+            'blood disorders, anemia, abnormal bleeding or clotting': 'hematologist',
+            'autoimmune diseases, chronic inflammatory conditions': 'rheumatologist',
+            'root canal infections, deep tooth pain': 'endodontist',
+            'gum diseases, bleeding gums, loose teeth': 'periodontist',
+            'cosmetic or reconstructive surgeries': 'plastic surgeon',
+            'brain and spinal cord surgeries, head injuries': 'neurosurgeon',
+            'severe allergies, asthma, immune system disorders': 'allergist/immunologist',
+            'chronic infections, tuberculosis, HIV/AIDS': 'infectious disease specialist',
+            'hemorrhoids, rectal bleeding, colon cancer': 'proctologist',
+            'male fertility issues, erectile dysfunction': 'andrologist',
+            'health issues in elderly patients, dementia, frailty': 'geriatrician',
+            'sports injuries, ligament tears, rehabilitation': 'sports medicine specialist',
+            'chronic pain, nerve pain, migraines': 'pain management specialist',
+            'sneezing, fever ,cough': 'general physician'
+        };
+
+        const doctorData = {};
+        Object.keys(symptomToSpecialization).forEach((symptom, index) => {
+            const specialization = symptomToSpecialization[symptom];
+            doctorData[specialization] = [
+                { name: `Dr. ${specialization}1`, phone: `100${index}`, address: `${specialization} Clinic` },
+                { name: `Dr. ${specialization}2`, phone: `100${index + 1}`, address: `${specialization} Hospital` }
+            ];
+        });
+        doctorData['general physician'] = [
+            { name: 'Dr. General1', phone: '9991', address: 'Main St' },
+            { name: 'Dr. General2', phone: '9992', address: 'City Hospital' }
+        ];
+
+        function findDoctor() {
+            const symptoms = document.getElementById('symptoms').value.toLowerCase().trim();
+            const specialization = symptomToSpecialization[symptoms] || 'general physician';
+            //document.getElementById('specialist-info').innerHTML = `<strong>You need to visit:</strong> ${specialist.replace('_', ' ')}`;
+            let output = doctorData[specialization] ? 
+                doctorData[specialization].map(doc => `<strong>${doc.name}</strong> - 📞${doc.phone}, 📍${doc.address}`).join('<br>') : 
+                'No doctors found for entered symptoms.';
+                
+            document.getElementById('doctor-info').innerHTML = `<strong>Available Doctors:</strong><br>${output}`;
+            document.getElementById('medicine-section').style.display = 'block';
+        }
+        function viewPrescription() {
+            const file = document.getElementById('prescription').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    document.getElementById('prescription-view').innerHTML =
+                        `<strong>Uploaded File:</strong> ${file.name}<br/><img src="${reader.result}" alt="Prescription">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function sendEmail() {
+            const userName = document.getElementById('userName').value;
+            const medicineName = document.getElementById('medicineName').value;
+            const userPhone = document.getElementById('userPhone').value;
+            const userAddress = document.getElementById('userAddress').value;
+            
+            const subject = `Medicine Request from ${userName}`;
+            const body = `Name of the patient: ${userName}%0A
+Name of the Medicine: ${medicineName}%0A
+Phone NO: ${userPhone}%0A
+Address: ${userAddress}%0A`;
+            
+            window.location.href = `mailto:scs610348@gmail.com?subject=${subject}&body=${body}`;
+        }
+    </script>
+<br>
+
+    <div class="footer">Developed by <a href="https://www.linkedin.com/in/venkata-sameer-mulaveesala-4a9628288/" target="_blank">Sameer</a></div>
+</body>
+</html>
